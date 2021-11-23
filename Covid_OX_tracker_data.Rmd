@@ -1,0 +1,42 @@
+---
+title: "honors"
+author: "Cande Torres"
+date: "10/19/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+covid_US <- read_csv("https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv")
+```
+
+```{r}
+
+covid_OX<-read_csv("https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/162b5cae62b14993c1f0eda850aae5ee6001fdcb/data/OxCGRT_withnotes_2020.csv")
+
+```
+
+```{r}
+ulst <- lapply(covid_OX, unique)
+```
+
+```{r}
+k <- lengths(ulst)
+k
+```
+
+```{r}
+unique(covid_OX[c("CountryName")])
+```
+
+```{r}
+covid_impact<- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv")
+```
+
