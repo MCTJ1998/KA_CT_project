@@ -1,0 +1,39 @@
+---
+title: "data_cleaning"
+author: "Cande Torres"
+date: "11/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(broom)
+```
+
+```{r}
+library(readxl)
+IV <- read_excel("/Users/cande/Desktop/Fall21/Advanced Data Science/KA_CT_project/Index_IV_Data_collection.xlsx",col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+```
+
+```{r}
+table(IV$`Talent Competitiveness Ranking (IMD)`)
+```
+
+```{r}
+IV_ranked<-IV %>% 
+  mutate(across(c(`PISA Math (2018)`,`PISA Science (2018)`,`PISA Reading (2018)`,`Quality of Education System (CEOWORLD)`, `Opportunity [in education] (CEOWORLD)`,`Talent Competitiveness Ranking (IMD)`),
+    ~min_rank(.x)))
+
+```
+
