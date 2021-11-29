@@ -1,0 +1,188 @@
+---
+title: "DV_index_cleaning"
+author: "Cande Torres"
+date: "11/26/2021"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(broom)
+library(readxl)
+library(readr)
+library(janitor)
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Upload data 
+
+```{r}
+covid_OX<-read_csv("https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/162b5cae62b14993c1f0eda850aae5ee6001fdcb/data/OxCGRT_withnotes_2020.csv")
+```
+
+```{r}
+#We actually don't need this data set because the Oxford tracker has that data. 
+covid_impact<- read_csv("https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv")
+```
+
+```{r}
+library(readxl)
+covid_school <- read_excel("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/Multivariate_data_2.0.xlsx",col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+```
+
+# Clean
+
+```{r}
+covid_OX<- clean_names(covid_OX)
+```
+
+```{r}
+covid_school<- clean_names(covid_school)
+```
+
+```{r}
+covid_school<-covid_school %>% 
+  select(-x16,-x17,-x18,-x19,-x20,-x21,-x22,-x23,-x24,-x25,-x26,-x27)
+```
+
+```{r}
+covid_OX<- covid_OX %>% 
+  select("country_name", "date", "c1_school_closing", "c2_workplace_closing", "c3_cancel_public_events", "c4_restrictions_on_gatherings", "c5_close_public_transport", "c6_stay_at_home_requirements", "c7_restrictions_on_internal_movement", "c8_international_travel_controls", "e1_income_support", "e2_debt_contract_relief", "e3_fiscal_measures", "e4_international_support", "h1_public_information_campaigns", "h2_testing_policy", "h3_contact_tracing", "h4_emergency_investment_in_healthcare", "h5_investment_in_vaccines","h6_facial_coverings","h7_vaccination_policy", "h8_protection_of_elderly_people", "confirmed_cases", "confirmed_deaths", "stringency_index", "government_response_index", "economic_support_index")
+```
+
+# Join data sets 
+
+```{r}
+data_join<-left_join(covid_school,covid_OX, by=c("unicef_country"="country_name"))
+```
+
+# DV: Level of Prioritization of education 
+
+Note: avoid collinearity. Create index adding up variables that respond to country's measures attempting to make education a priority on their 2020 agenda. Because it's a time series dataset, choose a specific date to select, justify selection. Maybe 3 dates to show variation. 
+
+- I will filter the data for the 15th of each month after July 2020 until December 2020.
+
+```{r}
+data_date<- data_join %>% 
+  filter(date %in% c(20200715,20200815,20200915,20201015,20201115,20201215))
+```
+
+- Rank the UNICEF vars 
+```{r}
+#Code to create ranking for the UNICEF vars. 
+UNICEF_ranked<-data_date %>% 
+  mutate(across(c(`days_fully_open`,`instruction_days`), #for these vars, the higher the score, the higher the rank, but that is not the case for all vars 
+    ~min_rank(.x))) 
+```
+
+```{r}
+#For days_fully_closed, days_academic_break and days_partially_closed, the higher the score, the lower the rank. 
+UNICEF_ranked<- UNICEF_ranked %>% 
+  mutate(across(c(`days_fully_closed`, `days_academic_break`, `days_partially_closed`),
+         ~min_rank(-.x)))
+```
+
+#raname long vars
+
+```{r}
+names(UNICEF_ranked)[names(UNICEF_ranked) == "support_to_girls_and_vulnerable_groups_children_with_disabilities_children_on_the_move_etc"] <- "Support_vulnerable"
+names(UNICEF_ranked)[names(UNICEF_ranked) == "teacher_support_pedagogical_psychosocial_financial_etc"] <- "teacher_support"
+names(UNICEF_ranked)[names(UNICEF_ranked) == "coverage_of_curriculum_subjects_and_content_planned"] <- "curriculum_coverage"
+names(UNICEF_ranked)[names(UNICEF_ranked) == "remote_learning_content_sensitive_to_needs_of_different_groups"] <- "content_need_sensitive"
+names(UNICEF_ranked)[names(UNICEF_ranked) == "quality_of_content_in_remote_learning_platforms"] <- "quality_remote_platform_content"
+```
+
+#Weighting index 
+
+Recode UNESCO +C1 var to match UNICEF scale
+
+```{r}
+data_scaled<-UNICEF_ranked %>% 
+  mutate(across(c(`tracking_or_monitoring_of_student_learning`, `quality_remote_platform_content`, `Support_vulnerable`, `content_need_sensitive`, `parental_caregiver_support`, `curriculum_coverage`, `teacher_support`, `access_to_remote_learning`, `quality_remote_platform_content`, `c1_school_closing`),
+      ~.x*1000))
+```
+
+#re-scaling the other vars just in case 
+
+```{r}
+data_scaled<-data_scaled %>% 
+  mutate(across(c(`c2_workplace_closing`, `c3_cancel_public_events`, `c4_restrictions_on_gatherings`, `c5_close_public_transport`, `c6_stay_at_home_requirements`, `c7_restrictions_on_internal_movement`, `c8_international_travel_controls`),
+      ~.x*1000))
+```
+```{r}
+data_scaled<-data_scaled %>% 
+  mutate(across(starts_with("h"),
+      ~.x*1000))
+```
+```{r}
+data_scaled<-data_scaled %>% 
+  mutate(across(c(`e1_income_support`, `e2_debt_contract_relief`, `e3_fiscal_measures`, `e4_international_support`),
+      ~.x*1000))
+```
+
+
+#Coding Index 
+
+```{r}
+data_scaled<- data_scaled %>% 
+  mutate(DV_Edu_prior_index= days_fully_open+
+           instruction_days+
+           days_fully_closed+
+           days_academic_break+
+           days_partially_closed+
+           tracking_or_monitoring_of_student_learning+
+           quality_remote_platform_content+
+           Support_vulnerable+
+           content_need_sensitive+
+           parental_caregiver_support+
+           curriculum_coverage+
+           teacher_support+
+           access_to_remote_learning+
+           quality_remote_platform_content+
+           c1_school_closing)
+```
+
+# Drop NAS
+```{r}
+data_clean<- data_scaled %>% 
+  filter(!is.na(DV_Edu_prior_index))
+```
+
+# Add Cathegoric Leveling for Index
+
+```{r}
+summary(data_clean$DV_Edu_prior_index)
+```
+
+```{r}
+data_DV_clean <- data_clean %>%
+  mutate(category=cut(DV_Edu_prior_index, breaks=c(-Inf, 22000, 25400, Inf), labels=c("low","middle","high")))
+```
+
+#Write new data set 
+
+```{r}
+library(writexl)
+```
+
+```{r}
+write.csv(data_DV_clean,"ADS_project_data_DV.csv")
+write_xlsx(data_DV_clean,"ADS_project_data_DV.xlsx")
+```
+
+
