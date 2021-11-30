@@ -37,3 +37,27 @@ IV_ranked<-IV %>%
 
 ```
 
+```{r}
+IV_indexed<- IV_ranked %>% 
+  mutate(IV_Edu_prior_index= `PISA Math (2018)`+
+           `PISA Science (2018)`+
+           `PISA Reading (2018)`+
+           `Quality of Education System (CEOWORLD)`+
+           `Opportunity [in education] (CEOWORLD)`+
+           `Talent Competitiveness Ranking (IMD)`)
+```
+
+
+#Write new data set 
+
+```{r}
+library(writexl)
+```
+
+```{r}
+write.csv(IV_indexed,"ADS_project_data_IV.csv")
+write_xlsx(IV_indexed,"ADS_project_data_IV.xlsx")
+```
+
+
+

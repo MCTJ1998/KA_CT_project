@@ -1,0 +1,114 @@
+"","Country","Talent Competitiveness Ranking (IMD)","Position (2020)","Best Countries for Education Ranking (US. News ) 2020","Best Countries for Education Ranking (US. News ) 2021","Quality of Education System (CEOWORLD)","Opportunity [in education] (CEOWORLD)","PISA Reading (2018)","PISA Math (2018)","PISA Science (2018)","IV_Edu_prior_index"
+"1","Switzerland",63,1,6,6,81,81,50,68,56,399
+"2","Denmark",62,2,10,12,83,84,60,65,54,408
+"3","Luxembourg",61,3,NA,NA,70,70,40,46,45,332
+"4","Iceland",60,4,NA,NA,66,66,42,53,44,331
+"5","Sweden",59,5,8,9,86,86,66,61,59,417
+"6","Austria",58,6,13,16,51,50,50,56,51,316
+"7","Norway",57,7,12,13,73,73,59,60,51,373
+"8","Canada",56,8,3,4,83,83,71,67,71,431
+"9","Singapore",55,9,19,21,76,76,75,76,76,434
+"10","Netherlands",54,10,9,10,87,87,52,70,62,412
+"11","Germany",53,11,4,3,82,82,58,58,62,395
+"12","Finland",52,12,15,15,78,78,71,63,73,415
+"13","Australia",51,13,7,8,88,88,61,50,62,400
+"14","Hong Kong SAR",50,14,NA,NA,48,49,74,75,70,366
+"15","USA",49,15,1,1,89,89,65,42,61,395
+"16","Belgium",48,16,18,18,72,72,55,64,59,370
+"17","Cyprus",47,17,NA,NA,62,62,27,34,32,264
+"18","Ireland",46,18,20,20,68,68,70,58,57,367
+"19","Estonia",45,19,47,44,59,60,73,71,75,383
+"20","Taiwan, China",44,20,NA,NA,77,77,61,74,69,402
+"21","New Zealand",43,21,14,11,69,69,66,52,67,366
+"22","Israel",42,22,25,24,79,79,40,38,37,315
+"23","United Kingdom",41,23,2,2,90,90,63,61,65,410
+"24","UAE",40,2,28,27,71,71,32,29,30,273
+"25","Malaysia",39,25,39,38,28,28,22,32,31,180
+"26","Portugal",38,26,20,25,57,57,54,51,53,310
+"27","Lithuania",37,27,45,42,53,54,44,43,48,279
+"28","France",36,28,5,5,85,85,55,53,54,368
+"29","Qatar",35,9,37,41,24,25,18,19,21,142
+"30","Slovenia",34,30,41,53,75,75,57,65,66,372
+"31","Korea Rep.",33,31,22,19,74,74,69,72,72,394
+"32","Spain",32,32,18,17,46,46,NA,43,49,NA
+"33","Latvia",31,33,50,50,59,59,47,55,50,301
+"34","Saudi Arabia",30,34,46,35,53,53,13,6,8,163
+"35","Poland",29,35,23,26,61,61,68,69,68,356
+"36","Italy",28,36,16,14,48,48,44,48,39,255
+"37","Greece",27,37,26,28,63,64,36,34,35,259
+"38","Japan",26,38,11,7,80,80,63,73,74,396
+"39","Czech Republic",25,39,29,29,63,65,53,56,58,320
+"40","China",24,40,24,22,26,26,76,77,77,306
+"41","Chile",23,41,35,48,37,37,35,20,34,186
+"42","Ukraine",22,42,38,40,NA,NA,38,36,41,NA
+"43","Thailand",21,43,48,46,39,39,11,22,24,156
+"44","Kazakhstan",20,44,70,71,28,29,9,25,10,121
+"45","Indonesia",19,45,55,54,NA,NA,6,7,9,NA
+"46","Turkey",18,46,31,31,38,38,38,37,39,208
+"47","Argentina",17,47,29,34,30,30,15,7,13,112
+"48","Phillippines",16,48,52,55,NA,NA,1,2,2,NA
+"49","Jordan",15,49,53,58,4,4,23,14,28,88
+"50","Hungary",14,50,30,30,67,67,44,43,47,282
+"51","Peru",13,51,59,63,NA,NA,14,14,13,NA
+"52","South Africa",12,52,32,33,21,21,NA,NA,NA,NA
+"53","Croatia",11,53,33,43,56,56,47,39,43,252
+"54","Russia",10,54,21,23,55,55,47,49,46,262
+"55","Bulgaria",9,55,43,49,42,42,24,30,23,170
+"56","Mexico",8,56,36,37,35,35,24,18,21,141
+"57","Romania",7,57,40,47,44,44,31,26,24,176
+"58","Colombia",6,58,49,51,8,8,20,10,16,68
+"59","Brazil",5,59,30,36,45,45,21,9,13,138
+"60","Venezuela",4,60,NA,NA,NA,NA,NA,NA,NA,NA
+"61","Slovak Republic",3,61,44,45,50,50,37,47,38,225
+"62","India",2,62,34,32,57,58,NA,NA,NA,NA
+"63","Mongolia",1,63,NA,NA,NA,NA,NA,NA,NA,NA
+"64","Liechtenstein",NA,NA,NA,NA,63,63,NA,NA,NA,NA
+"65","Georgia",NA,NA,NA,NA,52,52,8,13,6,NA
+"66","Kuwait",NA,NA,NA,NA,47,47,NA,NA,NA,NA
+"67","Uruguay",NA,NA,56,56,43,43,30,21,24,NA
+"68","Serbia",NA,NA,58,63,41,41,33,33,33,NA
+"69","Bahrain",NA,NA,NA,NA,40,40,NA,NA,NA,NA
+"70","Kyrgyzstan",NA,NA,NA,NA,36,36,NA,NA,NA,NA
+"71","Seychelles",NA,NA,NA,NA,34,34,NA,NA,NA,NA
+"72","Trinidad and Tobago",NA,NA,NA,NA,33,33,NA,NA,NA,NA
+"73","Tunisia",NA,NA,63,67,32,32,NA,NA,NA,NA
+"74","Malta",NA,NA,NA,NA,31,30,34,40,36,NA
+"75","Oman",NA,NA,62,62,27,27,NA,NA,NA,NA
+"76","Albania",NA,NA,NA,NA,24,24,17,31,20,NA
+"77","Azerbaijan",NA,NA,61,65,23,23,10,23,11,NA
+"78","Indonesia",NA,NA,NA,NA,22,21,NA,NA,NA,NA
+"79","Zambia",NA,NA,NA,NA,20,20,NA,NA,NA,NA
+"80","Montenegro",NA,NA,NA,NA,19,19,26,26,18,NA
+"81","Bahamas",NA,NA,NA,NA,18,18,NA,NA,NA,NA
+"82","Mauritius",NA,NA,NA,NA,17,17,NA,NA,NA,NA
+"83","Brunei",NA,NA,NA,NA,16,16,19,26,29,NA
+"84","Sri Lanka",NA,NA,67,66,15,15,NA,NA,NA,NA
+"85","Dominican Republic",NA,NA,60,69,14,13,2,1,1,NA
+"86","Barbados",NA,NA,NA,NA,13,13,NA,NA,NA,NA
+"87","Grenada",NA,NA,NA,NA,12,12,NA,NA,NA,NA
+"88","Costa Rica",NA,NA,54,6161,11,11,29,16,19,NA
+"89","Lebanon",NA,NA,69,70,10,10,3,11,7,NA
+"90","Pakistan",NA,NA,NA,NA,9,9,NA,NA,NA,NA
+"91","Gabon",NA,NA,NA,NA,7,7,NA,NA,NA,NA
+"92","Turkmenistan",NA,NA,NA,NA,6,6,NA,NA,NA,NA
+"93","Maldives",NA,NA,NA,NA,5,5,NA,NA,NA,NA
+"94","Libya",NA,NA,NA,NA,3,3,NA,NA,NA,NA
+"95","Myanmar",NA,NA,71,76,2,2,NA,NA,NA,NA
+"96","Botswana",NA,NA,NA,NA,1,1,NA,NA,NA,NA
+"97","Belarus",NA,NA,51,52,NA,NA,42,40,42,NA
+"98","Moldova",NA,NA,NA,NA,NA,NA,27,24,27,NA
+"99","Bostnia & Herzegovina",NA,NA,NA,NA,NA,NA,16,17,11,NA
+"100","Macedonia",NA,NA,NA,NA,NA,NA,11,12,16,NA
+"101","Panama",NA,NA,56,60,NA,NA,7,3,3,NA
+"102","Morocco",NA,NA,57,57,NA,NA,5,5,5,NA
+"103","Kosovo",NA,NA,NA,NA,NA,NA,3,4,3,NA
+"104","Egypt",NA,NA,42,39,NA,NA,NA,NA,NA,NA
+"105","Vietnam",NA,NA,64,59,NA,NA,NA,NA,NA,NA
+"106","Kenya",NA,NA,68,68,NA,NA,NA,NA,NA,NA
+"107","UAE",NA,NA,NA,NA,NA,NA,NA,NA,NA,NA
+"108","Uzbekistan",NA,NA,NA,72,NA,NA,NA,NA,NA,NA
+"109","Ecuador",NA,NA,65,73,NA,NA,NA,NA,NA,NA
+"110","El Salvador",NA,NA,NA,74,NA,NA,NA,NA,NA,NA
+"111","Cambodia",NA,NA,NA,75,NA,NA,NA,NA,NA,NA
+"112","Iraq",NA,NA,NA,77,NA,NA,NA,NA,NA,NA
+"113","Guatemala",NA,NA,73,78,NA,NA,NA,NA,NA,NA
