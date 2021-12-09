@@ -1,0 +1,247 @@
+---
+title: "Carefully"
+author: "Cande Torres"
+date: "12/1/2021"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(tidyr)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(broom)
+library(readxl)
+library(readr)
+library(janitor)
+library(lubridate)
+library(stringr)
+```
+
+# Upload data 
+
+```{r}
+covid_OX<-read_csv("https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/162b5cae62b14993c1f0eda850aae5ee6001fdcb/data/OxCGRT_withnotes_2020.csv")
+```
+
+- Filter covid_OX by NAT_ to get rid of dups 
+
+```{r}
+covid_OX<-covid_OX %>% 
+  filter(Jurisdiction=="NAT_TOTAL")
+```
+
+```{r}
+covid_school <- read_excel("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/Multivariate_data_2.0.xlsx",col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric"))
+```
+
+# Clean
+
+```{r}
+covid_OX<- clean_names(covid_OX)
+```
+
+```{r}
+covid_school<- clean_names(covid_school)
+```
+
+```{r}
+covid_school<-covid_school %>% 
+  select(-x16,-x17,-x18,-x19,-x20,-x21,-x22,-x23,-x24,-x25,-x26,-x27)
+```
+
+```{r}
+covid_OX<- covid_OX %>% 
+  select("country_name", "date", "c1_school_closing", "c2_workplace_closing", "c3_cancel_public_events", "c4_restrictions_on_gatherings", "c5_close_public_transport", "c6_stay_at_home_requirements", "c7_restrictions_on_internal_movement", "c8_international_travel_controls", "e1_income_support", "e2_debt_contract_relief", "e3_fiscal_measures", "e4_international_support", "h1_public_information_campaigns", "h2_testing_policy", "h3_contact_tracing", "h4_emergency_investment_in_healthcare", "h5_investment_in_vaccines","h6_facial_coverings","h7_vaccination_policy", "h8_protection_of_elderly_people", "confirmed_cases", "confirmed_deaths", "stringency_index", "government_response_index", "economic_support_index")
+```
+
+# Filter for Date of choice
+
+```{r}
+dec_month_OX<-covid_OX %>% 
+  filter(date ==20201215)
+```
+
+# Rename long variables
+
+```{r}
+names(covid_school)[names(covid_school) == "support_to_girls_and_vulnerable_groups_children_with_disabilities_children_on_the_move_etc"] <- "Support_vulnerable"
+names(covid_school)[names(covid_school) == "teacher_support_pedagogical_psychosocial_financial_etc"] <- "teacher_support"
+names(covid_school)[names(covid_school) == "coverage_of_curriculum_subjects_and_content_planned"] <- "curriculum_coverage"
+names(covid_school)[names(covid_school) == "remote_learning_content_sensitive_to_needs_of_different_groups"] <- "content_need_sensitive"
+names(covid_school)[names(covid_school) == "quality_of_content_in_remote_learning_platforms"] <- "quality_remote_platform_content"
+```
+
+# Code proportions 
+
+```{r}
+covid_school<-covid_school %>% 
+  mutate(prop_instruction= instruction_days/365) %>% 
+  mutate(prop_closed= days_fully_closed/365) %>% 
+  mutate(prop_break= days_academic_break/365) %>% 
+  mutate(prop_open= days_fully_open/365)
+```
+
+# Rank
+
+```{r}
+covid_ranked<-covid_school %>% 
+  mutate(open_rank= min_rank(prop_open)) %>% 
+  mutate(instruction_rank= min_rank(prop_instruction)) %>% 
+  mutate(closed_rank=min_rank(-prop_closed)) %>% 
+  mutate(break_rank=min_rank(-prop_break))
+```
+
+# Index
+
+```{r}
+covid_ranked<-covid_ranked %>% 
+  mutate(schooling_index= open_rank+instruction_rank+closed_rank+break_rank)
+```
+
+# Join Data DV
+
+```{r}
+first_join<-left_join(covid_ranked,dec_month_OX, by=c("unicef_country"="country_name"))
+```
+
+```{r}
+#203 Observations, no duplications
+table(first_join$unicef_country)
+```
+
+# Data for Education global rankings
+
+```{r}
+IV <- read_excel("/Users/cande/Desktop/Fall21/Advanced Data Science/KA_CT_project/Index_IV_Data_collection.xlsx",col_types = c("text", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric", "numeric", "numeric", 
+        "numeric"))
+```
+
+```{r}
+IV<-clean_names(IV)
+```
+
+```{r}
+IV_ranked<-IV %>% 
+  mutate(across(c(pisa_reading_2018, pisa_math_2018, pisa_science_2018, quality_of_education_system_ceoworld, opportunity_in_education_ceoworld, talent_competitiveness_ranking_imd),
+    ~min_rank(.x)))
+```
+
+```{r}
+IV_indexed<- IV_ranked %>% 
+  mutate(IV_index_no_timss = pisa_reading_2018+
+           pisa_science_2018+
+           pisa_math_2018+
+           quality_of_education_system_ceoworld+
+           opportunity_in_education_ceoworld+
+           position_2020)
+```
+
+```{r}
+IV_indexed<-IV_indexed %>% 
+  mutate(PISA_index=
+           pisa_reading_2018+
+           pisa_science_2018+
+           pisa_math_2018)
+```
+
+```{r}
+IV_indexed<-IV_indexed %>% 
+  mutate(CEOWORLD_index=
+           quality_of_education_system_ceoworld+
+           opportunity_in_education_ceoworld)
+```
+
+# TIMSS 
+
+This data wranggling is performed separated from the Education global rankings because the data is available for very few countries. Once the data sets are joined, including TIMSS reduces the numebr of observations. 
+
+```{r}
+#I made an initial cleaning on excell so the data sets on the git might be slightly different form the ones on my computer. 
+TIMSS_S4 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_2019_S4.xlsx", 
+    col_types = c("text", "numeric", "numeric"))
+TIMSS_S8 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_2019_S8.xlsx", 
+    col_types = c("text", "numeric", "numeric"))
+TIMSS_M4 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_19_M4.xlsx", 
+    col_types = c("text", "numeric", "numeric"))
+TIMSS_M8 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_2019_M8.xlsx", 
+    col_types = c("text", "numeric", "numeric"))
+```
+
+```{r}
+TIMSS4<-left_join(TIMSS_M4,TIMSS_S4, by=c("Country"="Country"))
+```
+```{r}
+TIMSS8<-left_join(TIMSS_M8,TIMSS_S8, by=c("Country"="Country"))
+```
+```{r}
+TIMSS<-left_join(TIMSS8,TIMSS4, by=c("Country"="Country"))
+```
+
+```{r}
+TIMSS<-clean_names(TIMSS)
+```
+
+```{r}
+TIMSS_ranked<-TIMSS %>% 
+  mutate(across(c(m8_avg_scale_score,m4_avg_scale_score,s8_avg_scale_score,s4_avg_scale_score),
+    ~min_rank(.x)))
+```
+
+```{r}
+TIMSS_score<-TIMSS_ranked %>% 
+  mutate(TIMSS_score = m8_avg_scale_score+
+           m4_avg_scale_score+
+           s8_avg_scale_score+
+           s4_avg_scale_score)
+```
+
+```{r}
+TIMSS_score<-TIMSS_score %>% 
+  mutate(country = str_replace(country, "England", "United Kingdom"))
+```
+
+# Join data together
+
+```{r}
+second_join<- left_join(first_join,IV_indexed ,by=c("unicef_country"="country"))
+```
+
+```{r}
+#We have 2 indonesias
+table(second_join$unicef_country)
+ second_join %>% 
+  count(unicef_country) %>% 
+  filter(n>1)
+```
+```{r}
+#filter out the duplicates
+second_join<-second_join %>% 
+  filter(!duplicated(unicef_country))
+```
+
+```{r}
+plusTIMSS2<-left_join(second_join,TIMSS_score, by=c("unicef_country"="country"))
+```
+
+# Save new data sets
+
+```{r}
+write.csv(second_join,"carefully_data.csv")
+```
+
+```{r}
+write.csv(plusTIMSS2,"plus_timss.csv")
+```
+
