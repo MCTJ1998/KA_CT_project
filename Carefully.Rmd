@@ -19,20 +19,22 @@ library(lubridate)
 library(stringr)
 ```
 
+The puspose of this Rmd is to carefully review the data cleaning process for the project
+
 # Upload data 
 
 ```{r}
 covid_OX<-read_csv("https://raw.githubusercontent.com/OxCGRT/covid-policy-tracker/162b5cae62b14993c1f0eda850aae5ee6001fdcb/data/OxCGRT_withnotes_2020.csv")
 ```
 
-- Filter covid_OX by NAT_ to get rid of dups 
+- Filter covid_OX by NAT_ to get rid of duplications 
 
 ```{r}
 covid_OX<-covid_OX %>% 
   filter(Jurisdiction=="NAT_TOTAL")
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 covid_school <- read_excel("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/Multivariate_data_2.0.xlsx",col_types = c("text", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
@@ -71,6 +73,7 @@ dec_month_OX<-covid_OX %>%
   filter(date ==20201215)
 ```
 
+
 # Rename long variables
 
 ```{r}
@@ -103,6 +106,8 @@ covid_ranked<-covid_school %>%
 
 # Index
 
+This index is the main dependent variable. It is combining the rankings obtained by countries in the proportion of days they a)provided instruction, b) kept educational institutions fully opened, c) kept educational institutions fully closed (negative score) and d) remained on academic break (negative score).
+
 ```{r}
 covid_ranked<-covid_ranked %>% 
   mutate(schooling_index= open_rank+instruction_rank+closed_rank+break_rank)
@@ -121,7 +126,7 @@ table(first_join$unicef_country)
 
 # Data for Education global rankings
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 IV <- read_excel("/Users/cande/Desktop/Fall21/Advanced Data Science/KA_CT_project/Index_IV_Data_collection.xlsx",col_types = c("text", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
@@ -132,6 +137,8 @@ IV <- read_excel("/Users/cande/Desktop/Fall21/Advanced Data Science/KA_CT_projec
 IV<-clean_names(IV)
 ```
 
+## Ranking and indexing data for different international rankings and tests on education
+
 ```{r}
 IV_ranked<-IV %>% 
   mutate(across(c(pisa_reading_2018, pisa_math_2018, pisa_science_2018, quality_of_education_system_ceoworld, opportunity_in_education_ceoworld, talent_competitiveness_ranking_imd),
@@ -140,7 +147,7 @@ IV_ranked<-IV %>%
 
 ```{r}
 IV_indexed<- IV_ranked %>% 
-  mutate(IV_index_no_timss = pisa_reading_2018+
+  mutate(iv_index_no_timss = pisa_reading_2018+
            pisa_science_2018+
            pisa_math_2018+
            quality_of_education_system_ceoworld+
@@ -150,7 +157,7 @@ IV_indexed<- IV_ranked %>%
 
 ```{r}
 IV_indexed<-IV_indexed %>% 
-  mutate(PISA_index=
+  mutate(pisa_index=
            pisa_reading_2018+
            pisa_science_2018+
            pisa_math_2018)
@@ -158,14 +165,14 @@ IV_indexed<-IV_indexed %>%
 
 ```{r}
 IV_indexed<-IV_indexed %>% 
-  mutate(CEOWORLD_index=
+  mutate(ceoworld_index=
            quality_of_education_system_ceoworld+
            opportunity_in_education_ceoworld)
 ```
 
 # TIMSS 
 
-This data wranggling is performed separated from the Education global rankings because the data is available for very few countries. Once the data sets are joined, including TIMSS reduces the numebr of observations. 
+This data wrangling is performed separated from the Education global rankings because the data is available for very few countries. Once the data sets are joined, including TIMSS reduces the number of observations. 
 
 ```{r}
 #I made an initial cleaning on excell so the data sets on the git might be slightly different form the ones on my computer. 
@@ -212,11 +219,28 @@ TIMSS_score<-TIMSS_score %>%
   mutate(country = str_replace(country, "England", "United Kingdom"))
 ```
 
+
+
+
 # Join data together
+
+
+```{r}
+write.csv(IV_indexed,"IV_indexed")
+```
+
+```{r}
+join8 <-full_join(TIMSS_score,IV_indexed ,by=c("country"="country"))
+```
+
+```{r}
+write.csv(join8,"Only_IV_NA")
+```
 
 ```{r}
 second_join<- left_join(first_join,IV_indexed ,by=c("unicef_country"="country"))
 ```
+
 
 ```{r}
 #We have 2 indonesias
@@ -243,5 +267,310 @@ write.csv(second_join,"carefully_data.csv")
 
 ```{r}
 write.csv(plusTIMSS2,"plus_timss.csv")
+```
+
+
+
+```{r}
+plusTIMSS2<-read_csv("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/plus_timss.csv")
+```
+```{r}
+plusTIMSS2<-plusTIMSS2 %>% 
+    mutate(schooling_rank=cut(schooling_index, breaks=c(-Inf, 284, 496, Inf), labels=c("low","middle","high")))
+plusTIMSS2<-plusTIMSS2 %>% 
+    mutate(stringency_cat=cut(stringency_index, breaks=c(-Inf, 48, 69, Inf), labels=c("low","middle","high")))
+plusTIMSS2<-plusTIMSS2 %>% 
+    mutate(government_cat=cut(government_response_index, breaks=c(-Inf, 44, 65, Inf), labels=c("low","middle","high")))
+plusTIMSS2<-plusTIMSS2 %>% 
+    mutate(economic_cat=cut(economic_support_index, breaks=c(-Inf, 25, 75, Inf), labels=c("low","middle","high")))
+```
+
+# Explorations
+
+
+
+```{r}
+lm(schooling_index~ 
+     pisa_index+
+     ceoworld_index+
+     talent_competitiveness_ranking_imd+ 
+     TIMSS_score+
+     best_countries_for_education_ranking_us_news_2020+ 
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index
+     
+   ,data= plusTIMSS2) %>% 
+  summary()
+```
+```{r}
+lm(instruction_rank~ pisa_index+
+     ceoworld_index+
+     talent_competitiveness_ranking_imd+ 
+     TIMSS_score+
+     best_countries_for_education_ranking_us_news_2020+ 
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index, 
+   data= plusTIMSS2) %>% 
+  summary()
+```
+- The coefficients seem random, except for the controls, those coefficients are logical.
+
+* Here in the following model the expectation would be that the nature of the relationship is negative between the global rankings and the school closing. Results suggest the coefficients are random. 
+
+```{r}
+lm(closed_rank~ pisa_index+
+     ceoworld_index+
+     talent_competitiveness_ranking_imd+ 
+     TIMSS_score+
+     best_countries_for_education_ranking_us_news_2020+ 
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index, 
+   data= plusTIMSS2) %>% 
+  summary()
+```
+
+```{r}
+
+lm(open_rank~ pisa_index+
+     ceoworld_index+
+     talent_competitiveness_ranking_imd+ 
+     TIMSS_score+
+     best_countries_for_education_ranking_us_news_2020+ 
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index, 
+   data= plusTIMSS2) %>% 
+  summary()
+```
+- Are Pisa results driving opening efforts for schools? p<0.01
+
+```{r}
+plusTIMSS2%>% 
+  ggplot(aes(x=pisa_index, y=open_rank))+
+  geom_point()+
+  geom_smooth(method=lm)
+#this looks strong
+```
+
+```{r}
+lm(break_rank~ pisa_index+
+     ceoworld_index+
+     talent_competitiveness_ranking_imd+ 
+     TIMSS_score+
+     best_countries_for_education_ranking_us_news_2020+ 
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index, 
+   data= plusTIMSS2) %>% 
+  summary()
+
+```
+
+- I deconstructed IV and DV indexes to test individual relationships. It is mostly random. There are many reasons why this can be (data availability, )
+
+Questions
+- Because the base of the data is a time_series, Is is possible that changing the filtered date the results change? Right now we are using Dec 15th 2020. Right now the date is random but maybe find a more meaningful date for the pandemic through process tracing? 
+
+# More progress
+
+After meeting with Professor Lendway , we arrived to the conclusion that the random natures of the relationships portrayed in the previous models respond to the lack of data for the large models. When a row of data is missing a value on any of the variables included in the model, that observation is automatically dropped by the model algorithm. With the amount of variables included, and considering that some of them had very few observations, then it is only logical that the models were showing random relationships drawn from very few observations. Considering that some independent variables attempted contain fewer observations than the dependent variable and the control, the inclusion of many explanatory variable make the model prone to over-fitting. 
+
+The solution I came up with respond to the following idea. Maybe different rankings have different weights on the schooling decisions states made during Covid pandemic. Because different countries participate on different rankings, it is inevitable that the observations will drop if the model includes all of the possible explanations. Thus, I will be running smaller models with the same dependent variable and the same controls but using different main explanatory variables. Thus, each model fitted will measure the relationship for different amounts of observations (countries). This decision mirrors the reality of the world because not all the countries participate from all the international rankings. Then, changing the main independent variable for the same model will include different amount of observations. 
+
+The independent variables that I will model are the following: 
+
+- pisa_index -> A ranking combining the countries results on Reading, math and science from PISA test 2018. Recorded for 76 countries. Available for 60 observations in the data set.
+
+- ceoworld -> In order to determine the international rankings for education systems, researchers at the CEOWORLD magazine compiled analyzed and compared 93 countries across two key categories: 1) Quality and 2) Opportunity. The index combines the results from both rankings for each country. Available for 73 observations.
+
+- talent_competitiveness_ranking_imd -> the World Talent Ranking (International Institute for Management Development) for 64 countries. The IMD World Talent Ranking (WTR) assesses the status and the development of competencies necessary for enterprises and the economy to achieve long term value creation. It does so by using a set of indicators which measure the development, retention and attraction of a domestic and international highly-skilled workforce. Available for 53 observations in the data set. 
+
+- TIMSS_score -> The Trends in International Mathematics and Science Study (TIMSS) is an international comparative study that has measured trends in mathematics and science achievement at 4th and 8th grade every 4 years since 1995. In 2019, TIMSS mathematics and science data were collected at 4th grade and 46 education systems at 8th grade. The data was released in December 2019. Available for 28 observations in the data set. 
+
+- best_countries_for_education_ranking_us_news_2020 -> The 2020 Best Countries for Education are ranked by the U.S. News and World Report based on a perception-based global survey, which used a compilation of scores from three equally weighted country attributes: having a well-developed public education system, whether people would consider attending university there and if that country provides a top quality education. The Best Countries rankings are based largely on perception, and countries are assessed on the same set of 76 country attributes each year. Available for 66 observations in the data set. 
+
+Initially I thought combining the 5 indexes would give a better rounded idea of the global perspective on countries on Education, however, this proved futile considering that not all countries participated or were integrated in the same rankings. 
+
+# Running models for each IV with the same based model (same control and same DV)
+
+## PISA
+```{r}
+lm(schooling_index~ 
+     pisa_index+
+     #ceoworld_index+
+     #talent_competitiveness_ranking_imd+ 
+     #TIMSS_score+
+    # best_countries_for_education_ranking_us_news_2020+ 
+     #h4_emergency_investment_in_healthcare+
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index
+     
+   ,data= plusTIMSS2) %>% 
+  summary()
+```
+## CEOWORLD
+```{r}
+lm(schooling_index~ 
+     #pisa_index+
+     ceoworld_index+
+     #talent_competitiveness_ranking_imd+ 
+     #TIMSS_score+
+    # best_countries_for_education_ranking_us_news_2020+ 
+     h4_emergency_investment_in_healthcare+
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index
+     
+   ,data= plusTIMSS2) %>% 
+  summary()
+```
+
+## TIMSS
+
+```{r}
+lm(schooling_index~ 
+     #pisa_index+
+     #ceoworld_index+
+     #talent_competitiveness_ranking_imd+ 
+     TIMSS_score+
+    # best_countries_for_education_ranking_us_news_2020+ 
+     h4_emergency_investment_in_healthcare+
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index
+     
+   ,data= plusTIMSS2) %>% 
+  summary()
+```
+
+## the World Talent Ranking
+
+```{r}
+lm(schooling_index~ 
+     #pisa_index+
+     #ceoworld_index+
+     talent_competitiveness_ranking_imd+ 
+     #TIMSS_score+
+    # best_countries_for_education_ranking_us_news_2020+ 
+     h4_emergency_investment_in_healthcare+
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index
+     
+   ,data= plusTIMSS2) %>% 
+  summary()
+```
+
+## Best Countries for Education US News
+
+```{r}
+lm(schooling_index~ 
+     #pisa_index+
+     #ceoworld_index+
+     #talent_competitiveness_ranking_imd+ 
+     #TIMSS_score+
+     best_countries_for_education_ranking_us_news_2020+ 
+     h4_emergency_investment_in_healthcare+
+     confirmed_cases+
+     confirmed_deaths+
+     government_response_index+
+     stringency_index+
+     economic_support_index
+     
+   ,data= plusTIMSS2) %>% 
+  summary()
+```
+
+__Nature of the relationship__:
+
+Interestingly, all but one IV showed a positive relationship between international rankings and the schooling index. Why is it that the US News ranking shows a negative relationship? 
+
+__Statistical significance__:
+
+All IVs show statistical significance. The ones showing the most (closer to 0) are: US news, PISA and CEOWORLD. The talent competitiveness shows a p-value closer to 0.001 and the TIMSS a p-value of 0.01. Because of the different size in observations, the most important thing is to understand the nature of the relationship between these variables.
+
+__Graphing__: 
+
+```{r warning=FALSE}
+plusTIMSS2%>% 
+  ggplot(aes(x=pisa_index, y=schooling_index))+
+  geom_point()+
+  geom_smooth(method=lm)
+```
+```{r warning=FALSE}
+plusTIMSS2%>% 
+  ggplot(aes(x=ceoworld_index, y=schooling_index))+
+  geom_point()+
+  geom_smooth(method=lm)
+```
+
+```{r warning=FALSE}
+plusTIMSS2%>% 
+  ggplot(aes(x=TIMSS_score, y=schooling_index))+
+  geom_point()+
+  geom_smooth(method=lm)
+```
+
+```{r warning=FALSE}
+plusTIMSS2%>% 
+  ggplot(aes(x=talent_competitiveness_ranking_imd, y=schooling_index))+
+  geom_point()+
+  geom_smooth(method=lm)
+
+```
+
+```{r warning=FALSE}
+plusTIMSS2%>% 
+  ggplot(aes(x=best_countries_for_education_ranking_us_news_2020, y=schooling_index))+
+  geom_point()+
+  geom_smooth(method=lm)
+```
+
+```{r}
+plusTIMSS2 %>% 
+  select(days_academic_break,days_fully_closed,days_fully_open,days_partially_closed, instruction_days, confirmed_cases,confirmed_deaths, stringency_index,government_response_index,economic_support_index, talent_competitiveness_ranking_imd, best_countries_for_education_ranking_us_news_2020, ceoworld_index,pisa_index, TIMSS_score) %>% 
+  pivot_longer(cols = everything(),
+               names_to = "variable", 
+               values_to = "value") %>% 
+  ggplot(aes(x = value)) +
+  geom_histogram(bins = 30) +
+  facet_wrap(vars(variable), 
+             scales = "free")
+```
+
+```{r}
+plusTIMSS2 %>% 
+  select(schooling_rank,economic_cat,stringency_cat, government_cat) %>% 
+  pivot_longer(cols = everything(),
+               names_to = "variable", 
+               values_to = "value") %>% 
+  ggplot(aes(x = value)) +
+  geom_bar(fill="red") +
+  facet_wrap(vars(variable), 
+             scales = "free", 
+             nrow = 2)+
+  theme_minimal()
 ```
 
