@@ -17,9 +17,9 @@ library(shinythemes)
 library(ggplot2)
 library(reshape2)
 
-plusTIMSS2<-read_csv("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/plus_timss.csv")
+plusTIMSS2<-read_csv("plus_timss.csv")
 
-map_data<- read_csv("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/Only_IV_NA")
+map_data<- read_csv("Only_IV_NA.csv")
 country_coordinates <- read_csv("average-latitude-longitude-countries.csv")
 
 #tidy the map data

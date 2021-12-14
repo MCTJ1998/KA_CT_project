@@ -20,7 +20,7 @@ library(broom)
 
 ```{r}
 library(readxl)
-IV <- read_excel("/Users/cande/Desktop/Fall21/Advanced Data Science/KA_CT_project/Index_IV_Data_collection.xlsx",col_types = c("text", "numeric", "numeric", 
+IV <- read_excel("Index_IV_Data_collection.xlsx",col_types = c("text", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric"))
@@ -39,13 +39,42 @@ IV_ranked<-IV %>%
 
 ```{r}
 IV_indexed<- IV_ranked %>% 
-  mutate(IV_Edu_prior_index= `PISA Math (2018)`+
+  mutate(IV_index = `PISA Math (2018)`+
            `PISA Science (2018)`+
            `PISA Reading (2018)`+
            `Quality of Education System (CEOWORLD)`+
            `Opportunity [in education] (CEOWORLD)`+
-           `Talent Competitiveness Ranking (IMD)`)
+           `Position (2020)`)
 ```
+
+```{r}
+IV_indexed<-IV_indexed %>% 
+  mutate(PISA_index=`PISA Math (2018)`+
+           `PISA Science (2018)`+
+           `PISA Reading (2018)`)
+```
+
+```{r}
+IV_indexed<-IV_indexed %>% 
+  mutate(CEOWORLD_index=`Quality of Education System (CEOWORLD)`+
+           `Opportunity [in education] (CEOWORLD)`)
+```
+
+```{r}
+IV_1<- IV_indexed %>% 
+  filter(!is.na(IV_index))
+```
+
+```{r}
+IV_2<- IV_indexed %>% 
+  filter(!is.na(PISA_index))
+```
+
+```{r}
+IV_3<- IV_indexed %>% 
+  filter(!is.na(CEOWORLD_index))
+```
+
 
 
 #Write new data set 
