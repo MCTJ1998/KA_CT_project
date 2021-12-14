@@ -35,7 +35,7 @@ covid_OX<-covid_OX %>%
 ```
 
 ```{r message=FALSE, warning=FALSE}
-covid_school <- read_excel("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/Multivariate_data_2.0.xlsx",col_types = c("text", "numeric", "numeric", 
+covid_school <- read_excel("Multivariate_data_2.0.xlsx",col_types = c("text", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
@@ -127,7 +127,7 @@ table(first_join$unicef_country)
 # Data for Education global rankings
 
 ```{r message=FALSE, warning=FALSE}
-IV <- read_excel("/Users/cande/Desktop/Fall21/Advanced Data Science/KA_CT_project/Index_IV_Data_collection.xlsx",col_types = c("text", "numeric", "numeric", 
+IV <- read_excel("Index_IV_Data_collection.xlsx",col_types = c("text", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric", "numeric", "numeric", 
         "numeric"))
@@ -176,13 +176,13 @@ This data wrangling is performed separated from the Education global rankings be
 
 ```{r}
 #I made an initial cleaning on excell so the data sets on the git might be slightly different form the ones on my computer. 
-TIMSS_S4 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_2019_S4.xlsx", 
+TIMSS_S4 <- read_excel("TIMSS_2019_S4.xlsx", 
     col_types = c("text", "numeric", "numeric"))
-TIMSS_S8 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_2019_S8.xlsx", 
+TIMSS_S8 <- read_excel("TIMSS_2019_S8.xlsx", 
     col_types = c("text", "numeric", "numeric"))
-TIMSS_M4 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_19_M4.xlsx", 
+TIMSS_M4 <- read_excel("TIMSS_19_M4.xlsx", 
     col_types = c("text", "numeric", "numeric"))
-TIMSS_M8 <- read_excel("~/Desktop/Fall21/Honors/Methods/data/TIMSS_2019_M8.xlsx", 
+TIMSS_M8 <- read_excel("TIMSS_2019_M8.xlsx", 
     col_types = c("text", "numeric", "numeric"))
 ```
 
@@ -219,14 +219,11 @@ TIMSS_score<-TIMSS_score %>%
   mutate(country = str_replace(country, "England", "United Kingdom"))
 ```
 
-
-
-
 # Join data together
 
 
 ```{r}
-write.csv(IV_indexed,"IV_indexed")
+write.csv(IV_indexed,"IV_indexed.csv")
 ```
 
 ```{r}
@@ -234,7 +231,7 @@ join8 <-full_join(TIMSS_score,IV_indexed ,by=c("country"="country"))
 ```
 
 ```{r}
-write.csv(join8,"Only_IV_NA")
+write.csv(join8,"Only_IV_NA.csv")
 ```
 
 ```{r}
@@ -269,10 +266,8 @@ write.csv(second_join,"carefully_data.csv")
 write.csv(plusTIMSS2,"plus_timss.csv")
 ```
 
-
-
 ```{r}
-plusTIMSS2<-read_csv("~/Desktop/Fall21/Advanced Data Science/KA_CT_project/plus_timss.csv")
+plusTIMSS2<-read_csv("plus_timss.csv")
 ```
 ```{r}
 plusTIMSS2<-plusTIMSS2 %>% 
@@ -284,105 +279,6 @@ plusTIMSS2<-plusTIMSS2 %>%
 plusTIMSS2<-plusTIMSS2 %>% 
     mutate(economic_cat=cut(economic_support_index, breaks=c(-Inf, 25, 75, Inf), labels=c("low","middle","high")))
 ```
-
-# Explorations
-
-
-
-```{r}
-lm(schooling_index~ 
-     pisa_index+
-     ceoworld_index+
-     talent_competitiveness_ranking_imd+ 
-     TIMSS_score+
-     best_countries_for_education_ranking_us_news_2020+ 
-     confirmed_cases+
-     confirmed_deaths+
-     government_response_index+
-     stringency_index+
-     economic_support_index
-     
-   ,data= plusTIMSS2) %>% 
-  summary()
-```
-```{r}
-lm(instruction_rank~ pisa_index+
-     ceoworld_index+
-     talent_competitiveness_ranking_imd+ 
-     TIMSS_score+
-     best_countries_for_education_ranking_us_news_2020+ 
-     confirmed_cases+
-     confirmed_deaths+
-     government_response_index+
-     stringency_index+
-     economic_support_index, 
-   data= plusTIMSS2) %>% 
-  summary()
-```
-- The coefficients seem random, except for the controls, those coefficients are logical.
-
-* Here in the following model the expectation would be that the nature of the relationship is negative between the global rankings and the school closing. Results suggest the coefficients are random. 
-
-```{r}
-lm(closed_rank~ pisa_index+
-     ceoworld_index+
-     talent_competitiveness_ranking_imd+ 
-     TIMSS_score+
-     best_countries_for_education_ranking_us_news_2020+ 
-     confirmed_cases+
-     confirmed_deaths+
-     government_response_index+
-     stringency_index+
-     economic_support_index, 
-   data= plusTIMSS2) %>% 
-  summary()
-```
-
-```{r}
-
-lm(open_rank~ pisa_index+
-     ceoworld_index+
-     talent_competitiveness_ranking_imd+ 
-     TIMSS_score+
-     best_countries_for_education_ranking_us_news_2020+ 
-     confirmed_cases+
-     confirmed_deaths+
-     government_response_index+
-     stringency_index+
-     economic_support_index, 
-   data= plusTIMSS2) %>% 
-  summary()
-```
-- Are Pisa results driving opening efforts for schools? p<0.01
-
-```{r}
-plusTIMSS2%>% 
-  ggplot(aes(x=pisa_index, y=open_rank))+
-  geom_point()+
-  geom_smooth(method=lm)
-#this looks strong
-```
-
-```{r}
-lm(break_rank~ pisa_index+
-     ceoworld_index+
-     talent_competitiveness_ranking_imd+ 
-     TIMSS_score+
-     best_countries_for_education_ranking_us_news_2020+ 
-     confirmed_cases+
-     confirmed_deaths+
-     government_response_index+
-     stringency_index+
-     economic_support_index, 
-   data= plusTIMSS2) %>% 
-  summary()
-
-```
-
-- I deconstructed IV and DV indexes to test individual relationships. It is mostly random. There are many reasons why this can be (data availability, )
-
-Questions
-- Because the base of the data is a time_series, Is is possible that changing the filtered date the results change? Right now we are using Dec 15th 2020. Right now the date is random but maybe find a more meaningful date for the pandemic through process tracing? 
 
 # More progress
 
